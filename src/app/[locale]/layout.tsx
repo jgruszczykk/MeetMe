@@ -24,20 +24,14 @@ export default async function LocaleLayout({
     <NextIntlClientProvider messages={messages}>
       <header className="border-b border-white/5">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <Link href={`/${locale}`} className="text-xl font-bold text-white">
+          <Link href={`/${locale}/book`} className="text-xl font-bold text-white">
             MeetMe
           </Link>
           <nav className="flex gap-4 text-sm">
-            <Link href={`/${locale}/book`} className="text-white/70 hover:text-white">
-              Book
-            </Link>
-            <Link href={`/${locale}/admin`} className="text-white/70 hover:text-white">
-              Admin
-            </Link>
             {routing.locales.map((l) => (
               <Link
                 key={l}
-                href={`/${l}`}
+                href={`/${l}/book`}
                 className={l === locale ? "text-violet-400" : "text-white/40"}
               >
                 {l.toUpperCase()}

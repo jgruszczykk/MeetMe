@@ -11,7 +11,10 @@
     "db:push": "drizzle-kit push",
     "db:seed": "tsx scripts/seed.ts",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "infra:sync": "bash scripts/infra-sync.sh",
+    "infra:plan": "terraform -chdir=infra/terraform plan",
+    "infra:apply": "terraform -chdir=infra/terraform apply"
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.5.3",

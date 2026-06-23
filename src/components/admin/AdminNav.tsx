@@ -8,13 +8,22 @@ import { adminLogout } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 
 const links = [
-  { href: "/admin", label: "dashboard" },
+  { href: "/admin", label: "dashboard", exact: true },
   { href: "/admin/bookings", label: "bookings" },
   { href: "/admin/clients", label: "clients" },
   { href: "/admin/calendar", label: "calendar" },
   { href: "/admin/availability/rules", label: "rules" },
   { href: "/admin/settings/general", label: "settings" },
-];
+  { href: "/admin/settings/durations", label: "durations" },
+  { href: "/admin/settings/intake", label: "intakeNav" },
+] as const;
+
+function isNavActive(pathname: string, href: string, exact?: boolean): boolean {
+  if (exact) {
+    return pathname === href || pathname === `${href}/`;
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function AdminNav() {
   const t = useTranslations("admin");
@@ -26,7 +35,7 @@ export function AdminNav() {
       <p className="mb-4 text-lg font-bold text-white">MeetMe</p>
       {links.map((link) => {
         const href = `/${locale}${link.href}`;
-        const active = pathname === href || pathname.startsWith(href + "/");
+        const active = isNavActive(pathname, href, "exact" in link ? link.exact : false);
         return (
           <Link
             key={link.href}

@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import type { meetingDurations } from "@/lib/db/schema";
 
@@ -18,8 +17,6 @@ export function DurationStep({
   onSelect: (id: string) => void;
   onNext: () => void;
 }) {
-  const t = useTranslations("booking");
-
   return (
     <motion.div
       initial={{ opacity: 0, x: 40 }}
@@ -27,7 +24,6 @@ export function DurationStep({
       exit={{ opacity: 0, x: -40 }}
       className="space-y-6"
     >
-      <h2 className="text-2xl font-semibold text-white md:text-center">{t("stepDuration")}</h2>
       <div className="grid gap-3 sm:grid-cols-3">
         {durations.map((d) => (
           <button

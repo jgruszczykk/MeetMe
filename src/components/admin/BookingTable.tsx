@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/input";
 import { formatDateTime } from "@/lib/utils";
 import type { bookings } from "@/lib/db/schema";
 import {
@@ -10,22 +13,26 @@ import {
   confirmBooking,
   updateBookingStatus,
 } from "@/lib/actions";
-import { useState } from "react";
-import { Input, Textarea } from "@/components/ui/input";
 
 type Booking = typeof bookings.$inferSelect;
 
 export function BookingActions({ booking }: { booking: Booking }) {
   const t = useTranslations("admin");
   const locale = useLocale();
+  const router = useRouter();
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const act = async (fn: () => Promise<unknown>) => {
+  const act = async (fn: () => Promise<unknown>, redirectToDetail = false) => {
     setLoading(true);
     try {
       await fn();
-      window.location.reload();
+      if (redirectToDetail) {
+        router.push(`/${locale}/admin/bookings/${booking.id}`);
+        router.refresh();
+        return;
+      }
+      router.refresh();
     } finally {
       setLoading(false);
     }
@@ -36,7 +43,7 @@ export function BookingActions({ booking }: { booking: Booking }) {
       {booking.status === "pending" && (
         <Button
           disabled={loading}
-          onClick={() => act(() => confirmBooking(booking.id))}
+          onClick={() => act(() => confirmBooking(booking.id), true)}
           className="w-full"
           data-testid="confirm-booking"
         >
@@ -87,15 +94,68 @@ export function BookingActions({ booking }: { booking: Booking }) {
   );
 }
 
+function BookingQuickActions({ booking }: { booking: Booking }) {
+  const t = useTranslations("admin");
+  const locale = useLocale();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  if (booking.status !== "pending") return null;
+
+  const act = async (fn: () => Promise<unknown>) => {
+    setLoading(true);
+    try {
+      await fn();
+      router.push(`/${locale}/admin/bookings/${booking.id}`);
+      router.refresh();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap justify-end gap-2">
+      <Button
+        size="sm"
+        disabled={loading}
+        onClick={() => act(() => confirmBooking(booking.id))}
+        data-testid="confirm-booking"
+      >
+        {t("confirm")}
+      </Button>
+      <Button
+        size="sm"
+        variant="destructive"
+        disabled={loading}
+        onClick={() => {
+          if (window.confirm(t("quickCancelConfirm"))) {
+            void act(() => cancelBooking(booking.id));
+          }
+        }}
+        data-testid="cancel-booking"
+      >
+        {t("cancelBooking")}
+      </Button>
+    </div>
+  );
+}
+
 export function BookingTable({
   bookings: items,
   locale,
+  quickActions = false,
 }: {
   bookings: Booking[];
   locale: string;
+  quickActions?: boolean;
 }) {
   const t = useTranslations("admin");
   const tStatus = useTranslations("bookingStatus");
+  const router = useRouter();
+
+  const openBooking = (id: string) => {
+    router.push(`/${locale}/admin/bookings/${id}`);
+  };
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-white/10">
@@ -105,12 +165,25 @@ export function BookingTable({
             <th className="p-4">Guest</th>
             <th className="p-4">When</th>
             <th className="p-4">Status</th>
-            <th className="p-4"></th>
+            {quickActions && <th className="p-4">{t("actions")}</th>}
           </tr>
         </thead>
         <tbody>
           {items.map((b) => (
-            <tr key={b.id} className="border-t border-white/5">
+            <tr
+              key={b.id}
+              className="cursor-pointer border-t border-white/5 transition-colors hover:bg-white/[0.04]"
+              onClick={() => openBooking(b.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  openBooking(b.id);
+                }
+              }}
+              tabIndex={0}
+              role="link"
+              aria-label={`${b.guestName} — ${tStatus(b.status)}`}
+            >
               <td className="p-4">
                 <p className="font-medium text-white">{b.guestName}</p>
                 <p className="text-white/50">{b.guestEmail}</p>
@@ -131,13 +204,11 @@ export function BookingTable({
                   {tStatus(b.status)}
                 </span>
               </td>
-              <td className="p-4">
-                <Link href={`/${locale}/admin/bookings/${b.id}`}>
-                  <Button size="sm" variant="ghost">
-                    →
-                  </Button>
-                </Link>
-              </td>
+              {quickActions && (
+                <td className="p-4" onClick={(e) => e.stopPropagation()}>
+                  <BookingQuickActions booking={b} />
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

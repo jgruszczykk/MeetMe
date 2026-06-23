@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { and, desc, eq, ilike, inArray, or } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { requireDb } from "@/lib/db";
 import {
   availabilityExceptions,
@@ -16,10 +16,14 @@ import {
   emailLog,
   hostSettings,
   hosts,
+  intakeQuestions,
   locations,
   meetingDurations,
 } from "@/lib/db/schema";
 import { sendBookingEmail } from "@/lib/email/send";
+import { buildBookingSummaryFromRecord } from "@/lib/email/bookingContext";
+import { resolveBookingIcsLocation } from "@/lib/email/ics";
+import { getMeetingPlaceFromResponses } from "@/lib/booking/summary";
 import { getAvailableSlotsForBooking } from "@/lib/slots/service";
 import {
   ADMIN_SESSION_COOKIE,
@@ -32,7 +36,9 @@ import {
   createBookingSchema,
   durationSchema,
   hostSettingsSchema,
+  intakeQuestionSchema,
   locationSchema,
+  reorderIntakeQuestionsSchema,
 } from "@/lib/validations";
 import { addHours } from "date-fns";
 
@@ -84,6 +90,10 @@ async function logBookingEvent(
 }
 
 async function verifyTurnstile(token: string): Promise<boolean> {
+  if (process.env.E2E_TEST_MODE === "true" && token === "e2e-bypass-token") {
+    return true;
+  }
+
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) return process.env.NODE_ENV === "development";
 
@@ -185,6 +195,7 @@ export async function createBooking(input: unknown) {
       guestEmail: data.guestEmail,
       guestPhone: data.guestPhone,
       guestNotes: data.guestNotes,
+      intakeResponses: data.intakeResponses ?? null,
     })
     .returning();
 
@@ -193,8 +204,11 @@ export async function createBooking(input: unknown) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const cancelUrl = `${appUrl}/${data.locale}/booking/${booking.id}/cancel?token=${booking.cancelToken}`;
 
+  const summaryItems = await buildBookingSummaryFromRecord(booking);
+
   const userEmail = await sendBookingEmail("request_received", booking, data.locale, {
     cancelUrl,
+    summaryItems,
   });
   await logEmail(booking.id, "request_received", booking.guestEmail, data.locale, userEmail.id);
 
@@ -206,6 +220,7 @@ export async function createBooking(input: unknown) {
   if (settings) {
     const adminEmail = await sendBookingEmail("new_booking_admin", booking, data.locale, {
       adminEmail: settings.adminEmail,
+      summaryItems,
     });
     await logEmail(
       booking.id,
@@ -233,10 +248,23 @@ export async function confirmBooking(bookingId: string) {
     .where(eq(bookings.id, bookingId))
     .returning();
 
+  const summaryItems = await buildBookingSummaryFromRecord(updated);
+
+  const [location] = updated.locationId
+    ? await db.select().from(locations).where(eq(locations.id, updated.locationId))
+    : [undefined];
+  const customPlace = getMeetingPlaceFromResponses(
+    (updated.intakeResponses ?? {}) as Record<string, string | string[]>,
+  );
+  const icsLocationLine = resolveBookingIcsLocation(updated, location, customPlace);
+  const icsOnlineUrl =
+    updated.locationType === "online" ? location?.onlineUrl?.trim() || undefined : undefined;
+
   const email = await sendBookingEmail(
     "confirmed",
     updated,
     updated.locale as "pl" | "en",
+    { summaryItems, icsLocationLine, icsOnlineUrl },
   );
   const log = await logEmail(
     bookingId,
@@ -261,6 +289,7 @@ export async function confirmBooking(bookingId: string) {
   ]);
 
   revalidatePath("/admin");
+  revalidatePath(`/admin/bookings/${bookingId}`);
   return { success: true };
 }
 
@@ -292,24 +321,27 @@ export async function cancelBooking(
     .where(eq(bookings.id, bookingId))
     .returning();
 
+  const summaryItems = await buildBookingSummaryFromRecord(updated);
+
   const emailType = options?.byUser ? "cancelled_by_user" : "cancelled_by_admin";
   const email = await sendBookingEmail(
     emailType,
     updated,
     updated.locale as "pl" | "en",
-    { reason: options?.reason },
+    { reason: options?.reason, summaryItems },
   );
-  await logEmail(bookingId, emailType, updated.guestEmail, updated.locale, email.id);
+  const log = await logEmail(bookingId, emailType, updated.guestEmail, updated.locale, email.id);
   await logBookingEvent(
     bookingId,
     options?.byUser ? "user" : "admin",
     booking.status,
     "cancelled",
     options?.reason,
-    email.id,
+    log.id,
   );
 
   revalidatePath("/admin");
+  revalidatePath(`/admin/bookings/${bookingId}`);
   return { success: true };
 }
 
@@ -329,6 +361,7 @@ export async function updateBookingStatus(
 
   await logBookingEvent(bookingId, "admin", booking.status, status);
   revalidatePath("/admin");
+  revalidatePath(`/admin/bookings/${bookingId}`);
 }
 
 export async function getBookings(filter?: {
@@ -364,6 +397,35 @@ export async function getBookingById(id: string) {
   const db = requireDb();
   const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
   return booking ?? null;
+}
+
+export async function getBookingDetail(id: string) {
+  await requireAdmin();
+  const db = requireDb();
+  const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
+  if (!booking) return null;
+
+  const questions = await db
+    .select()
+    .from(intakeQuestions)
+    .where(and(eq(intakeQuestions.hostId, booking.hostId), eq(intakeQuestions.isActive, true)))
+    .orderBy(asc(intakeQuestions.sortOrder));
+
+  const events = await db
+    .select()
+    .from(bookingEvents)
+    .where(eq(bookingEvents.bookingId, id))
+    .orderBy(desc(bookingEvents.createdAt));
+
+  const emails = await db
+    .select()
+    .from(emailLog)
+    .where(eq(emailLog.bookingId, id))
+    .orderBy(desc(emailLog.createdAt));
+
+  const summaryItems = await buildBookingSummaryFromRecord(booking);
+
+  return { booking, intakeQuestions: questions, events, emails, summaryItems };
 }
 
 export async function getClients(search?: string) {
@@ -506,11 +568,34 @@ export async function upsertDuration(hostId: string, data: unknown, id?: string)
   revalidatePath("/admin/settings/durations");
 }
 
-export async function deleteDuration(id: string) {
+export async function deleteDuration(
+  id: string,
+): Promise<{ ok: true } | { ok: false; error: "in_use" | "last" }> {
   await requireAdmin();
   const db = requireDb();
+
+  const [duration] = await db
+    .select()
+    .from(meetingDurations)
+    .where(eq(meetingDurations.id, id));
+  if (!duration) return { ok: false, error: "last" };
+
+  const [booking] = await db
+    .select({ id: bookings.id })
+    .from(bookings)
+    .where(eq(bookings.durationId, id))
+    .limit(1);
+  if (booking) return { ok: false, error: "in_use" };
+
+  const hostDurations = await db
+    .select({ id: meetingDurations.id })
+    .from(meetingDurations)
+    .where(eq(meetingDurations.hostId, duration.hostId));
+  if (hostDurations.length <= 1) return { ok: false, error: "last" };
+
   await db.delete(meetingDurations).where(eq(meetingDurations.id, id));
   revalidatePath("/admin/settings/durations");
+  return { ok: true };
 }
 
 export async function upsertLocation(hostId: string, data: unknown, id?: string) {
@@ -532,6 +617,58 @@ export async function deleteLocation(id: string) {
   revalidatePath("/admin/settings/locations");
 }
 
+export async function getIntakeQuestions(hostId: string) {
+  const db = requireDb();
+  return db
+    .select()
+    .from(intakeQuestions)
+    .where(eq(intakeQuestions.hostId, hostId))
+    .orderBy(asc(intakeQuestions.sortOrder));
+}
+
+export async function upsertIntakeQuestion(hostId: string, data: unknown, id?: string) {
+  await requireAdmin();
+  const parsed = intakeQuestionSchema.parse(data);
+  const db = requireDb();
+
+  const values = {
+    ...parsed,
+    hostId,
+    options: parsed.options ?? null,
+    showWhen: parsed.showWhen ?? null,
+  };
+
+  if (id) {
+    await db.update(intakeQuestions).set(values).where(eq(intakeQuestions.id, id));
+  } else {
+    await db.insert(intakeQuestions).values(values);
+  }
+  revalidatePath("/admin/settings/intake");
+}
+
+export async function deleteIntakeQuestion(id: string) {
+  await requireAdmin();
+  const db = requireDb();
+  await db.delete(intakeQuestions).where(eq(intakeQuestions.id, id));
+  revalidatePath("/admin/settings/intake");
+}
+
+export async function reorderIntakeQuestions(hostId: string, orderedIds: string[]) {
+  await requireAdmin();
+  reorderIntakeQuestionsSchema.parse({ orderedIds });
+  const db = requireDb();
+
+  await Promise.all(
+    orderedIds.map((questionId, index) =>
+      db
+        .update(intakeQuestions)
+        .set({ sortOrder: index })
+        .where(and(eq(intakeQuestions.id, questionId), eq(intakeQuestions.hostId, hostId))),
+    ),
+  );
+  revalidatePath("/admin/settings/intake");
+}
+
 export async function updateHostSettings(hostId: string, data: unknown) {
   await requireAdmin();
   const parsed = hostSettingsSchema.parse(data);
@@ -540,6 +677,24 @@ export async function updateHostSettings(hostId: string, data: unknown) {
     .update(hostSettings)
     .set(parsed)
     .where(eq(hostSettings.hostId, hostId));
+  revalidatePath("/admin/settings");
+}
+
+export async function updateHostSlug(hostId: string, slug: string) {
+  await requireAdmin();
+  const normalized = slug.trim().toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(normalized)) {
+    throw new Error("Invalid slug format");
+  }
+
+  const db = requireDb();
+  const [existing] = await db.select().from(hosts).where(eq(hosts.slug, normalized));
+  if (existing && existing.id !== hostId) {
+    throw new Error("Slug already taken");
+  }
+
+  await db.update(hosts).set({ slug: normalized }).where(eq(hosts.id, hostId));
+  revalidatePath("/admin");
   revalidatePath("/admin/settings");
 }
 
@@ -594,9 +749,15 @@ export async function getAdminDashboardData() {
   };
 }
 
-export async function getBookingFlowData() {
+export async function getDefaultHostSlug() {
   const db = requireDb();
   const [host] = await db.select().from(hosts).limit(1);
+  return host?.slug ?? "default";
+}
+
+export async function getBookingFlowDataBySlug(slug: string) {
+  const db = requireDb();
+  const [host] = await db.select().from(hosts).where(eq(hosts.slug, slug));
   if (!host) return null;
 
   const durations = await db
@@ -610,18 +771,72 @@ export async function getBookingFlowData() {
     .from(locations)
     .where(and(eq(locations.hostId, host.id), eq(locations.isActive, true)));
 
-  return { host, durations, locations: locs };
+  const questions = await db
+    .select()
+    .from(intakeQuestions)
+    .where(and(eq(intakeQuestions.hostId, host.id), eq(intakeQuestions.isActive, true)))
+    .orderBy(asc(intakeQuestions.sortOrder));
+
+  return { host, durations, locations: locs, intakeQuestions: questions };
+}
+
+export async function getBookingFlowData() {
+  const slug = await getDefaultHostSlug();
+  return getBookingFlowDataBySlug(slug);
+}
+
+function escapeCsvField(value: string): string {
+  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
+function formatIntakeValueForCsv(value: string | string[] | undefined): string {
+  if (value === undefined) return "";
+  if (Array.isArray(value)) return value.join(";");
+  return value;
 }
 
 export async function exportBookingsCsv() {
   await requireAdmin();
+  const db = requireDb();
   const data = await getBookings();
-  const header = "id,status,guestName,guestEmail,startsAt,locationType\n";
+  const [host] = await db.select().from(hosts).limit(1);
+
+  const intakeKeys: string[] = [];
+  if (host) {
+    const questions = await db
+      .select({ key: intakeQuestions.key })
+      .from(intakeQuestions)
+      .where(and(eq(intakeQuestions.hostId, host.id), eq(intakeQuestions.isActive, true)))
+      .orderBy(asc(intakeQuestions.sortOrder));
+    intakeKeys.push(...questions.map((q) => q.key));
+  }
+
+  const baseHeader = ["id", "status", "guestName", "guestEmail", "startsAt", "locationType"];
+  const intakeHeaders = intakeKeys.map((key) => `intake_${key}`);
+  const header = [...baseHeader, ...intakeHeaders].join(",") + "\n";
+
   const rows = data
-    .map(
-      (b) =>
-        `${b.id},${b.status},${b.guestName},${b.guestEmail},${b.startsAt.toISOString()},${b.locationType}`,
-    )
+    .map((b) => {
+      const responses = (b.intakeResponses ?? {}) as Record<string, string | string[]>;
+      const baseFields = [
+        b.id,
+        b.status,
+        b.guestName,
+        b.guestEmail,
+        b.startsAt.toISOString(),
+        b.locationType,
+      ].map((field) => escapeCsvField(String(field)));
+
+      const intakeFields = intakeKeys.map((key) =>
+        escapeCsvField(formatIntakeValueForCsv(responses[key])),
+      );
+
+      return [...baseFields, ...intakeFields].join(",");
+    })
     .join("\n");
+
   return header + rows;
 }

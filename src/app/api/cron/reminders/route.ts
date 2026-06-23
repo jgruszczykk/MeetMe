@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireDb } from "@/lib/db";
 import { bookingReminders, bookings } from "@/lib/db/schema";
 import { sendBookingEmail } from "@/lib/email/send";
+import { buildBookingSummaryFromRecord } from "@/lib/email/bookingContext";
 import { emailLog } from "@/lib/db/schema";
 
 export async function GET(request: NextRequest) {
@@ -32,10 +33,12 @@ export async function GET(request: NextRequest) {
   let sent = 0;
   for (const { reminder, booking } of dueReminders) {
     const type = reminder.type === "24h" ? "reminder_24h" : "reminder_1h";
+    const summaryItems = await buildBookingSummaryFromRecord(booking);
     const result = await sendBookingEmail(
       type,
       booking,
       booking.locale as "pl" | "en",
+      { summaryItems },
     );
     await db.insert(emailLog).values({
       bookingId: booking.id,

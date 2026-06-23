@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 
-test("landing page loads", async ({ page }) => {
+test("home redirects to booking flow", async ({ page }) => {
   await page.goto("/pl");
-  await expect(page.getByRole("heading")).toBeVisible();
+  await expect(page.getByTestId("meeting-type-business")).toBeVisible();
 });
 
 test("book page loads", async ({ page }) => {

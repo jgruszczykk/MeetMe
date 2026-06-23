@@ -2,6 +2,7 @@ import {
   boolean,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -31,6 +32,15 @@ export const actorTypeEnum = pgEnum("actor_type", ["admin", "user", "system"]);
 export const cancelledByEnum = pgEnum("cancelled_by", ["admin", "user"]);
 
 export const reminderTypeEnum = pgEnum("reminder_type", ["24h", "1h"]);
+
+export const intakeQuestionTypeEnum = pgEnum("intake_question_type", [
+  "select",
+  "multiselect",
+  "text",
+  "textarea",
+  "phone",
+  "email",
+]);
 
 export const hosts = pgTable("hosts", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -118,6 +128,28 @@ export const availabilityOverrides = pgTable("availability_overrides", {
   note: text("note"),
 });
 
+export const intakeQuestions = pgTable(
+  "intake_questions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    hostId: uuid("host_id")
+      .notNull()
+      .references(() => hosts.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+    type: intakeQuestionTypeEnum("type").notNull(),
+    labelPl: text("label_pl").notNull(),
+    labelEn: text("label_en").notNull(),
+    placeholderPl: text("placeholder_pl"),
+    placeholderEn: text("placeholder_en"),
+    options: jsonb("options"),
+    required: boolean("required").notNull().default(false),
+    sortOrder: integer("sort_order").notNull().default(0),
+    isActive: boolean("is_active").notNull().default(true),
+    showWhen: jsonb("show_when"),
+  },
+  (table) => [uniqueIndex("intake_questions_host_key_idx").on(table.hostId, table.key)],
+);
+
 export const clients = pgTable(
   "clients",
   {
@@ -160,6 +192,7 @@ export const bookings = pgTable(
     guestEmail: text("guest_email").notNull(),
     guestPhone: text("guest_phone"),
     guestNotes: text("guest_notes"),
+    intakeResponses: jsonb("intake_responses"),
     cancelReason: text("cancel_reason"),
     cancelledBy: cancelledByEnum("cancelled_by"),
     cancelToken: uuid("cancel_token").defaultRandom().notNull(),
@@ -209,3 +242,4 @@ export const bookingReminders = pgTable("booking_reminders", {
 export type Host = typeof hosts.$inferSelect;
 export type Booking = typeof bookings.$inferSelect;
 export type BookingStatus = Booking["status"];
+export type IntakeQuestion = typeof intakeQuestions.$inferSelect;

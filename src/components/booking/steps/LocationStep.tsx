@@ -35,17 +35,9 @@ export function LocationStep({
       initial={{ opacity: 0, x: 40 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -40 }}
-      className="grid gap-8 md:grid-cols-2"
+      className="space-y-4"
     >
-      <div className="hidden md:flex md:flex-col md:justify-center">
-        <div className="rounded-3xl bg-gradient-to-br from-violet-600/30 to-fuchsia-600/20 p-12">
-          <h2 className="text-3xl font-bold text-white">{t("stepLocation")}</h2>
-          <p className="mt-4 text-white/60">Choose how you want to connect</p>
-        </div>
-      </div>
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold text-white md:hidden">{t("stepLocation")}</h2>
-        {locationTypes.map(({ type, icon: Icon }) => (
+      {locationTypes.map(({ type, icon: Icon }) => (
           <button
             key={type}
             type="button"
@@ -61,14 +53,13 @@ export function LocationStep({
             <span className="text-lg text-white">{labels[type]}</span>
           </button>
         ))}
-        <div className="flex justify-between pt-4">
-          <Button variant="ghost" onClick={onBack}>
-            ←
-          </Button>
-          <Button disabled={!selected} onClick={onNext} size="lg">
-            →
-          </Button>
-        </div>
+      <div className="flex justify-between pt-4">
+        <Button variant="ghost" onClick={onBack}>
+          ←
+        </Button>
+        <Button disabled={!selected} onClick={onNext} size="lg" data-testid="step-next">
+          →
+        </Button>
       </div>
     </motion.div>
   );

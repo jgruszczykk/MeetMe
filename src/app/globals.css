@@ -12,9 +12,17 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  background-color: var(--background);
+  color-scheme: dark;
+}
+
 body {
-  background: radial-gradient(ellipse at top, #1a1033 0%, #07050f 50%);
+  background-color: var(--background);
+  background-image: radial-gradient(ellipse at top, #1a1033 0%, #07050f 50%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100vh;
+  min-height: 100dvh;
 }

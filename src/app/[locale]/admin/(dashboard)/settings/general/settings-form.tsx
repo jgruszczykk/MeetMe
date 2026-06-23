@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { updateHostSettings } from "@/lib/actions";
+import { updateHostSettings, updateHostSlug } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import type { hostSettings } from "@/lib/db/schema";
@@ -11,12 +11,15 @@ type Settings = typeof hostSettings.$inferSelect;
 
 export function SettingsForm({
   hostId,
+  hostSlug,
   settings,
 }: {
   hostId: string;
+  hostSlug: string;
   settings: Settings;
 }) {
   const t = useTranslations("admin");
+  const [slug, setSlug] = useState(hostSlug);
   const [form, setForm] = useState({
     minNoticeMinutes: settings.minNoticeMinutes,
     maxHorizonDays: settings.maxHorizonDays,
@@ -27,6 +30,9 @@ export function SettingsForm({
   });
 
   const save = async () => {
+    if (slug !== hostSlug) {
+      await updateHostSlug(hostId, slug);
+    }
     await updateHostSettings(hostId, form);
     alert("Saved");
   };
@@ -41,6 +47,15 @@ export function SettingsForm({
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
+      <div className="md:col-span-2">
+        <Label>{t("slug")}</Label>
+        <Input
+          value={slug}
+          onChange={(e) => setSlug(e.target.value.toLowerCase())}
+          placeholder="default"
+          className="mt-2 font-mono"
+        />
+      </div>
       {fields.map(({ key, label }) => (
         <div key={key}>
           <Label>{label}</Label>

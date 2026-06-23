@@ -1,0 +1,34 @@
+# Copy to terraform.tfvars (gitignored) and fill in values.
+# Or pass via: terraform apply -var-file=secrets.tfvars
+
+vercel_api_token = "vercel_xxxxxxxx"
+vercel_team_id   = "" # optional
+
+project_name = "meetme"
+github_repo  = "jgruszczykk/MeetMe"
+
+# After first deploy, set to https://meetme.vercel.app or your custom domain
+production_url    = "https://meetme.vercel.app"
+production_domain = "" # e.g. "meetme.yourdomain.com"
+
+# Neon
+database_url = "postgresql://user:pass@host/neondb?sslmode=require"
+
+# App secrets — use strong random values in production
+admin_secret = "change-me-use-openssl-rand-base64-32"
+admin_email  = "admin@example.com"
+cron_secret  = "change-me-use-openssl-rand-base64-32"
+
+# Cloudflare Turnstile (https://dash.cloudflare.com/)
+turnstile_site_key   = "0x4AAAAAAA..."
+turnstile_secret_key = "0x4AAAAAAA..."
+
+# Resend (https://resend.com/)
+resend_api_key    = "re_xxxxxxxx"
+resend_from_email = "MeetMe <noreply@yourdomain.com>"
+
+# Optional
+sentry_dsn = ""
+
+enable_preview_env     = true
+enable_development_env = false

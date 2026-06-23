@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
-import { LandingPage } from "@/components/landing/LandingPage";
+import { redirect } from "next/navigation";
+import { getDefaultBookingPath } from "@/lib/booking/defaultHost";
 
 export default async function HomePage({
   params,
@@ -7,5 +8,6 @@ export default async function HomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  return <LandingPage locale={locale} />;
+  setRequestLocale(locale);
+  redirect(await getDefaultBookingPath(locale));
 }

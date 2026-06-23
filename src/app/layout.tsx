@@ -19,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className={`${geist.variable} h-full`}>
-      <body className="min-h-full antialiased">
+    <html className={`${geist.variable} h-full bg-[#07050f]`}>
+      <body className="min-h-full bg-[#07050f] antialiased">
         {children}
         <VercelAnalytics />
       </body>

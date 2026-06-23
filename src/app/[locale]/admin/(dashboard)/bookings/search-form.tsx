@@ -31,10 +31,10 @@ export function SearchForm({
         onChange={(e) => update("status", e.target.value)}
         className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white"
       >
-        <option value="pending">{t("filterPending")}</option>
-        <option value="confirmed">Confirmed</option>
-        <option value="cancelled">Cancelled</option>
         <option value="all">{t("filterAll")}</option>
+        <option value="pending">{t("filterPending")}</option>
+        <option value="confirmed">{t("filterConfirmed")}</option>
+        <option value="cancelled">{t("filterCancelled")}</option>
       </select>
       <Input
         placeholder={t("search")}

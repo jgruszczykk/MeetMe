@@ -13,6 +13,11 @@ export default defineConfig({
     url: "http://localhost:3000/pl",
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
+    env: {
+      ...process.env,
+      E2E_TEST_MODE: "true",
+      NEXT_PUBLIC_E2E: "true",
+    },
   },
   use: {
     baseURL: "http://localhost:3000",

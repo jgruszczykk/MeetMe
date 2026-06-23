@@ -17,7 +17,7 @@ export default async function GeneralSettingsPage({
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-white">{t("general")}</h1>
-      <SettingsForm hostId={data.host.id} settings={data.settings} />
+      <SettingsForm hostId={data.host.id} hostSlug={data.host.slug} settings={data.settings} />
     </div>
   );
 }

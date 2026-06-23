@@ -1,0 +1,89 @@
+name: Terraform
+
+on:
+  pull_request:
+    paths:
+      - "infra/terraform/**"
+      - ".github/workflows/terraform.yml"
+  push:
+    branches: [main]
+    paths:
+      - "infra/terraform/**"
+      - ".github/workflows/terraform.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/terraform
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -no-color -input=false 2>&1 | tee plan.txt
+        env:
+          TF_VAR_vercel_api_token: ${{ secrets.VERCEL_API_TOKEN }}
+          TF_VAR_vercel_team_id: ${{ secrets.TF_VAR_VERCEL_TEAM_ID }}
+          TF_VAR_database_url: ${{ secrets.TF_VAR_DATABASE_URL }}
+          TF_VAR_admin_secret: ${{ secrets.TF_VAR_ADMIN_SECRET }}
+          TF_VAR_admin_email: ${{ secrets.TF_VAR_ADMIN_EMAIL }}
+          TF_VAR_cron_secret: ${{ secrets.TF_VAR_CRON_SECRET }}
+          TF_VAR_turnstile_site_key: ${{ secrets.TF_VAR_TURNSTILE_SITE_KEY }}
+          TF_VAR_turnstile_secret_key: ${{ secrets.TF_VAR_TURNSTILE_SECRET_KEY }}
+          TF_VAR_resend_api_key: ${{ secrets.TF_VAR_RESEND_API_KEY }}
+          TF_VAR_production_url: ${{ secrets.TF_VAR_PRODUCTION_URL }}
+          TF_VAR_sentry_dsn: ${{ secrets.TF_VAR_SENTRY_DSN }}
+          TF_VAR_production_domain: ${{ secrets.TF_VAR_PRODUCTION_DOMAIN }}
+
+      - name: Comment Plan on PR
+        if: github.event_name == 'pull_request' && success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('infra/terraform/plan.txt', 'utf8').slice(0, 60000);
+            const body = `#### Terraform Plan\n<details><summary>Show Plan</summary>\n\n\`\`\`\n${plan}\n\`\`\`\n\n</details>`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
+        env:
+          TF_VAR_vercel_api_token: ${{ secrets.VERCEL_API_TOKEN }}
+          TF_VAR_vercel_team_id: ${{ secrets.TF_VAR_VERCEL_TEAM_ID }}
+          TF_VAR_database_url: ${{ secrets.TF_VAR_DATABASE_URL }}
+          TF_VAR_admin_secret: ${{ secrets.TF_VAR_ADMIN_SECRET }}
+          TF_VAR_admin_email: ${{ secrets.TF_VAR_ADMIN_EMAIL }}
+          TF_VAR_cron_secret: ${{ secrets.TF_VAR_CRON_SECRET }}
+          TF_VAR_turnstile_site_key: ${{ secrets.TF_VAR_TURNSTILE_SITE_KEY }}
+          TF_VAR_turnstile_secret_key: ${{ secrets.TF_VAR_TURNSTILE_SECRET_KEY }}
+          TF_VAR_resend_api_key: ${{ secrets.TF_VAR_RESEND_API_KEY }}
+          TF_VAR_production_url: ${{ secrets.TF_VAR_PRODUCTION_URL }}
+          TF_VAR_sentry_dsn: ${{ secrets.TF_VAR_SENTRY_DSN }}
+          TF_VAR_production_domain: ${{ secrets.TF_VAR_PRODUCTION_DOMAIN }}

@@ -17,7 +17,7 @@ export default async function BookingsPage({
   setRequestLocale(locale);
   const t = await getTranslations("admin");
 
-  const status = sp.status ?? "pending";
+  const status = sp.status ?? "all";
   const bookings = await getBookings({
     status: status === "all" ? undefined : status,
     search: sp.search,
@@ -30,7 +30,7 @@ export default async function BookingsPage({
         <ExportButton />
       </div>
       <SearchForm defaultStatus={status} defaultSearch={sp.search ?? ""} />
-      <BookingTable bookings={bookings} locale={locale} />
+      <BookingTable bookings={bookings} locale={locale} quickActions />
     </div>
   );
 }
