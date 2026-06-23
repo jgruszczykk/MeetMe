@@ -10,7 +10,7 @@ export const db = connectionString
 
 export function requireDb() {
   if (!db) {
-    throw new Error("DATABASE_URL is not configured");
+    throw new Error("Database is not available");
   }
   return db;
 }

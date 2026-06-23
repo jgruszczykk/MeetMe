@@ -1,4 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { BookingFlow } from "@/components/booking/BookingFlow";
 import { getBookingFlowDataBySlug } from "@/lib/actions";
@@ -10,6 +11,7 @@ export default async function BookSlugPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("common");
 
   let data = null;
   let dbError = false;
@@ -22,7 +24,7 @@ export default async function BookSlugPage({
   if (dbError) {
     return (
       <div className="p-8 text-center text-white/60">
-        <p>Database not configured. Set DATABASE_URL and run migrations + seed.</p>
+        <p>{t("error")}</p>
       </div>
     );
   }
