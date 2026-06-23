@@ -26,9 +26,9 @@ locals {
 
   # Non-secret env vars
   plain_env = {
-    ADMIN_EMAIL                      = var.admin_email
-    NEXT_PUBLIC_TURNSTILE_SITE_KEY   = var.turnstile_site_key
-    RESEND_FROM_EMAIL                = var.resend_from_email
+    ADMIN_EMAIL                    = var.admin_email
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY = var.turnstile_site_key
+    RESEND_FROM_EMAIL              = var.resend_from_email
   }
 
   # Secrets — never logged by Terraform when sensitive = true
