@@ -1,0 +1,190 @@
+{
+  "common": {
+    "appName": "MeetMe",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "minutes": "min"
+  },
+  "nav": {
+    "book": "Book a meeting",
+    "admin": "Admin panel"
+  },
+  "landing": {
+    "title": "Book a meeting in minutes",
+    "subtitle": "Pick a time that works for you and leave your details — we'll handle the rest.",
+    "cta": "Start booking",
+    "featuresTitle": "Why MeetMe?",
+    "faqTitle": "Frequently asked questions",
+    "ctaTitle": "Ready to meet?",
+    "ctaSubtitle": "Book your slot in under 2 minutes.",
+    "privacy": "Privacy policy",
+    "terms": "Terms of service",
+    "features": [
+      {
+        "title": "Fast booking",
+        "description": "Intuitive flow — pick duration, location, and time in a few steps."
+      },
+      {
+        "title": "Your timezone",
+        "description": "Slots displayed automatically in your local timezone."
+      },
+      {
+        "title": "Secure",
+        "description": "Cloudflare Turnstile verification and email confirmation."
+      },
+      {
+        "title": "Flexible meetings",
+        "description": "Online, phone, or in-person — you choose."
+      },
+      {
+        "title": "Admin confirmation",
+        "description": "Every booking is reviewed before final confirmation."
+      },
+      {
+        "title": "Reminders",
+        "description": "Automatic emails 24h and 1h before your meeting."
+      }
+    ],
+    "faq": [
+      {
+        "question": "Is my booking confirmed immediately?",
+        "answer": "No — you'll receive an email that your request was received. Final confirmation comes after admin approval."
+      },
+      {
+        "question": "Can I cancel my booking?",
+        "answer": "Yes, while the status is pending. After admin confirmation, please contact the host directly."
+      },
+      {
+        "question": "What data do you collect?",
+        "answer": "Name, email, optional phone and notes — solely for scheduling your meeting."
+      },
+      {
+        "question": "Can I choose the language?",
+        "answer": "Yes — the app supports Polish and English."
+      }
+    ]
+  },
+  "booking": {
+    "assistantName": "Mia",
+    "assistantGreeting": "Hi! I'll help you book a meeting.",
+    "stepDuration": "How long should the meeting be?",
+    "stepLocation": "How would you like to meet?",
+    "stepDateTime": "Pick a time",
+    "stepDetails": "Your details",
+    "locationOnline": "Online",
+    "locationPhone": "Phone",
+    "locationInPerson": "In person",
+    "selectDate": "Select date",
+    "selectTime": "Select time",
+    "noSlots": "No available slots on this day",
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "notes": "Notes (optional)",
+    "submit": "Submit request",
+    "successTitle": "Request received!",
+    "successMessage": "Thank you! Your meeting request has been received. You'll get an email when the admin confirms your booking.",
+    "successSubtext": "Check your inbox — we sent a confirmation that we received your request.",
+    "turnstileRequired": "Please verify you're not a robot"
+  },
+  "bookingStatus": {
+    "pending": "Awaiting confirmation",
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "completed": "Completed",
+    "no_show": "No-show",
+    "cancelTitle": "Cancel booking",
+    "cancelConfirm": "Are you sure you want to cancel this booking?",
+    "cancelSuccess": "Booking has been cancelled",
+    "cannotCancel": "This booking can no longer be cancelled"
+  },
+  "admin": {
+    "login": "Admin login",
+    "password": "Admin password",
+    "loginButton": "Sign in",
+    "logout": "Sign out",
+    "dashboard": "Dashboard",
+    "bookings": "Bookings",
+    "clients": "Clients",
+    "availability": "Availability",
+    "settings": "Settings",
+    "calendar": "Calendar",
+    "pendingCount": "Pending",
+    "confirm": "Confirm",
+    "cancelBooking": "Cancel booking",
+    "markCompleted": "Mark completed",
+    "markNoShow": "Mark no-show",
+    "cancelReason": "Cancellation reason (optional)",
+    "exportCsv": "Export CSV",
+    "search": "Search...",
+    "filterAll": "All",
+    "filterPending": "Pending",
+    "rules": "Weekly rules",
+    "exceptions": "Exceptions",
+    "overrides": "Manual slots",
+    "durations": "Meeting durations",
+    "locations": "Locations",
+    "general": "General settings",
+    "addRule": "Add rule",
+    "addException": "Add exception",
+    "addOverride": "Add slot",
+    "addDuration": "Add duration",
+    "addLocation": "Add location",
+    "dayOfWeek": "Day of week",
+    "startTime": "From",
+    "endTime": "To",
+    "minNotice": "Min notice (min)",
+    "maxHorizon": "Max horizon (days)",
+    "dailyLimit": "Daily limit",
+    "bufferBefore": "Buffer before (min)",
+    "bufferAfter": "Buffer after (min)",
+    "adminEmail": "Admin email",
+    "clientNotes": "Client notes",
+    "tags": "Tags",
+    "emailHistory": "Email history",
+    "bookingHistory": "Booking history"
+  },
+  "days": {
+    "0": "Sunday",
+    "1": "Monday",
+    "2": "Tuesday",
+    "3": "Wednesday",
+    "4": "Thursday",
+    "5": "Friday",
+    "6": "Saturday"
+  },
+  "email": {
+    "requestReceivedSubject": "Meeting request received",
+    "requestReceivedBody": "Your meeting request has been received and is awaiting confirmation.",
+    "confirmedSubject": "Meeting confirmed",
+    "confirmedBody": "Your booking has been confirmed. See you soon!",
+    "cancelledSubject": "Booking cancelled",
+    "cancelledBody": "Your booking has been cancelled.",
+    "reminder24hSubject": "Reminder: meeting tomorrow",
+    "reminder1hSubject": "Reminder: meeting in 1 hour",
+    "newBookingAdminSubject": "New booking to confirm",
+    "cancelLink": "Cancel booking"
+  },
+  "legal": {
+    "privacyTitle": "Privacy Policy",
+    "privacyIntro": "MeetMe processes personal data solely for meeting scheduling in compliance with GDPR.",
+    "dataCollected": "Data we collect",
+    "dataCollectedBody": "Full name, email address, phone number (optional), and meeting notes.",
+    "dataUsage": "Purpose of processing",
+    "dataUsageBody": "We use your data to organize meetings, send email notifications, and manage the calendar.",
+    "contact": "Contact",
+    "contactBody": "For data protection inquiries, contact the administrator at the email listed in the admin panel.",
+    "termsTitle": "Terms of Service",
+    "termsIntro": "By using MeetMe, you accept the following booking terms.",
+    "bookingPolicy": "Booking policy",
+    "bookingPolicyBody": "Meeting requests require admin confirmation. Until confirmed, bookings remain in pending status.",
+    "cancellation": "Cancellation",
+    "cancellationBody": "Users may cancel bookings independently while status is pending. After admin confirmation, contact the host directly.",
+    "backHome": "Back to home"
+  }
+}

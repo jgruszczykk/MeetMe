@@ -1,0 +1,190 @@
+{
+  "common": {
+    "appName": "MeetMe",
+    "back": "Wstecz",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "loading": "Ładowanie...",
+    "error": "Coś poszło nie tak",
+    "minutes": "min"
+  },
+  "nav": {
+    "book": "Umów spotkanie",
+    "admin": "Panel admina"
+  },
+  "landing": {
+    "title": "Umów spotkanie w kilka chwil",
+    "subtitle": "Wybierz dogodny termin i zostaw dane kontaktowe — resztą zajmiemy się my.",
+    "cta": "Zacznij rezerwację",
+    "featuresTitle": "Dlaczego MeetMe?",
+    "faqTitle": "Najczęstsze pytania",
+    "ctaTitle": "Gotowy na spotkanie?",
+    "ctaSubtitle": "Zarezerwuj termin w mniej niż 2 minuty.",
+    "privacy": "Polityka prywatności",
+    "terms": "Regulamin",
+    "features": [
+      {
+        "title": "Szybka rezerwacja",
+        "description": "Intuicyjny flow — wybierz długość, miejsce i termin w kilku krokach."
+      },
+      {
+        "title": "Twoja strefa czasowa",
+        "description": "Sloty wyświetlane automatycznie w Twojej lokalnej strefie czasowej."
+      },
+      {
+        "title": "Bezpiecznie",
+        "description": "Weryfikacja Cloudflare Turnstile i potwierdzenie email."
+      },
+      {
+        "title": "Elastyczne terminy",
+        "description": "Online, telefon lub spotkanie na miejscu — Ty wybierasz."
+      },
+      {
+        "title": "Potwierdzenie admina",
+        "description": "Każda rezerwacja jest weryfikowana przed finalnym potwierdzeniem."
+      },
+      {
+        "title": "Przypomnienia",
+        "description": "Automatyczne emaile 24h i 1h przed spotkaniem."
+      }
+    ],
+    "faq": [
+      {
+        "question": "Czy rezerwacja jest od razu potwierdzona?",
+        "answer": "Nie — po wysłaniu wniosku otrzymasz email z informacją, że prośba została przyjęta. Finalne potwierdzenie przyjdzie po akceptacji przez admina."
+      },
+      {
+        "question": "Czy mogę anulować rezerwację?",
+        "answer": "Tak, dopóki status to „oczekująca”. Po potwierdzeniu przez admina skontaktuj się bezpośrednio."
+      },
+      {
+        "question": "Jakie dane są zbierane?",
+        "answer": "Imię, email, opcjonalnie telefon i notatka — wyłącznie w celu umówienia spotkania."
+      },
+      {
+        "question": "Czy mogę wybrać język?",
+        "answer": "Tak — aplikacja obsługuje polski i angielski."
+      }
+    ]
+  },
+  "booking": {
+    "assistantName": "Mia",
+    "assistantGreeting": "Cześć! Pomogę Ci umówić spotkanie.",
+    "stepDuration": "Jak długo ma trwać spotkanie?",
+    "stepLocation": "Jak chcesz się spotkać?",
+    "stepDateTime": "Wybierz termin",
+    "stepDetails": "Twoje dane",
+    "locationOnline": "Online",
+    "locationPhone": "Telefon",
+    "locationInPerson": "Na miejscu",
+    "selectDate": "Wybierz datę",
+    "selectTime": "Wybierz godzinę",
+    "noSlots": "Brak dostępnych terminów w tym dniu",
+    "name": "Imię i nazwisko",
+    "email": "Email",
+    "phone": "Telefon",
+    "notes": "Notatka (opcjonalnie)",
+    "submit": "Wyślij wniosek",
+    "successTitle": "Wniosek przyjęty!",
+    "successMessage": "Dziękujemy! Twoja prośba o spotkanie została przyjęta. Otrzymasz email, gdy admin potwierdzi rezerwację.",
+    "successSubtext": "Sprawdź skrzynkę — wysłaliśmy potwierdzenie przyjęcia wniosku.",
+    "turnstileRequired": "Potwierdź, że nie jesteś robotem"
+  },
+  "bookingStatus": {
+    "pending": "Oczekuje na potwierdzenie",
+    "confirmed": "Potwierdzona",
+    "cancelled": "Anulowana",
+    "completed": "Zakończona",
+    "no_show": "Nieobecność",
+    "cancelTitle": "Anuluj rezerwację",
+    "cancelConfirm": "Czy na pewno chcesz anulować tę rezerwację?",
+    "cancelSuccess": "Rezerwacja została anulowana",
+    "cannotCancel": "Tej rezerwacji nie można już anulować"
+  },
+  "admin": {
+    "login": "Logowanie admina",
+    "password": "Hasło admina",
+    "loginButton": "Zaloguj",
+    "logout": "Wyloguj",
+    "dashboard": "Dashboard",
+    "bookings": "Rezerwacje",
+    "clients": "Klienci",
+    "availability": "Dostępność",
+    "settings": "Ustawienia",
+    "calendar": "Kalendarz",
+    "pendingCount": "Oczekujące",
+    "confirm": "Potwierdź",
+    "cancelBooking": "Anuluj rezerwację",
+    "markCompleted": "Oznacz jako zakończone",
+    "markNoShow": "Oznacz no-show",
+    "cancelReason": "Powód anulowania (opcjonalnie)",
+    "exportCsv": "Eksport CSV",
+    "search": "Szukaj...",
+    "filterAll": "Wszystkie",
+    "filterPending": "Oczekujące",
+    "rules": "Reguły tygodniowe",
+    "exceptions": "Wyjątki",
+    "overrides": "Ręczne sloty",
+    "durations": "Długości spotkań",
+    "locations": "Lokalizacje",
+    "general": "Ustawienia ogólne",
+    "addRule": "Dodaj regułę",
+    "addException": "Dodaj wyjątek",
+    "addOverride": "Dodaj slot",
+    "addDuration": "Dodaj długość",
+    "addLocation": "Dodaj lokalizację",
+    "dayOfWeek": "Dzień tygodnia",
+    "startTime": "Od",
+    "endTime": "Do",
+    "minNotice": "Min. wyprzedzenie (min)",
+    "maxHorizon": "Max horyzont (dni)",
+    "dailyLimit": "Limit dzienny",
+    "bufferBefore": "Bufor przed (min)",
+    "bufferAfter": "Bufor po (min)",
+    "adminEmail": "Email admina",
+    "clientNotes": "Notatki o kliencie",
+    "tags": "Tagi",
+    "emailHistory": "Historia emaili",
+    "bookingHistory": "Historia rezerwacji"
+  },
+  "days": {
+    "0": "Niedziela",
+    "1": "Poniedziałek",
+    "2": "Wtorek",
+    "3": "Środa",
+    "4": "Czwartek",
+    "5": "Piątek",
+    "6": "Sobota"
+  },
+  "email": {
+    "requestReceivedSubject": "Przyjęto wniosek o spotkanie",
+    "requestReceivedBody": "Twój wniosek o spotkanie został przyjęty i oczekuje na potwierdzenie.",
+    "confirmedSubject": "Spotkanie potwierdzone",
+    "confirmedBody": "Twoja rezerwacja została potwierdzona. Do zobaczenia!",
+    "cancelledSubject": "Rezerwacja anulowana",
+    "cancelledBody": "Twoja rezerwacja została anulowana.",
+    "reminder24hSubject": "Przypomnienie: spotkanie jutro",
+    "reminder1hSubject": "Przypomnienie: spotkanie za godzinę",
+    "newBookingAdminSubject": "Nowa rezerwacja do potwierdzenia",
+    "cancelLink": "Anuluj rezerwację"
+  },
+  "legal": {
+    "privacyTitle": "Polityka prywatności",
+    "privacyIntro": "MeetMe przetwarza dane osobowe wyłącznie w celu umawiania spotkań zgodnie z RODO.",
+    "dataCollected": "Jakie dane zbieramy",
+    "dataCollectedBody": "Imię i nazwisko, adres email, numer telefonu (opcjonalnie) oraz notatka do spotkania.",
+    "dataUsage": "Cel przetwarzania",
+    "dataUsageBody": "Dane wykorzystujemy do organizacji spotkań, wysyłki powiadomień email i zarządzania kalendarzem.",
+    "contact": "Kontakt",
+    "contactBody": "W sprawach danych osobowych skontaktuj się z administratorem pod adresem podanym w panelu admina.",
+    "termsTitle": "Regulamin",
+    "termsIntro": "Korzystając z MeetMe, akceptujesz poniższe warunki rezerwacji spotkań.",
+    "bookingPolicy": "Zasady rezerwacji",
+    "bookingPolicyBody": "Wniosek o spotkanie wymaga potwierdzenia przez administratora. Do momentu potwierdzenia rezerwacja ma status oczekujący.",
+    "cancellation": "Anulowanie",
+    "cancellationBody": "Użytkownik może anulować rezerwację samodzielnie, dopóki nie została potwierdzona przez admina.",
+    "backHome": "Strona główna"
+  }
+}
