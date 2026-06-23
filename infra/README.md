@@ -73,19 +73,26 @@ GitHub Actions workflow `.github/workflows/terraform.yml` runs `terraform plan` 
 
 ### Required GitHub secrets
 
-| Secret | Description |
-|--------|-------------|
-| `VERCEL_API_TOKEN` or `TF_VAR_VERCEL_API_TOKEN` | Vercel API token ([create here](https://vercel.com/account/tokens)) |
-| `TF_VAR_DATABASE_URL` | Neon connection string |
-| `TF_VAR_ADMIN_SECRET` | Admin password |
-| `TF_VAR_CRON_SECRET` | Cron bearer token |
-| `TF_VAR_TURNSTILE_SITE_KEY` | Turnstile site key |
-| `TF_VAR_TURNSTILE_SECRET_KEY` | Turnstile secret |
-| `TF_VAR_RESEND_API_KEY` | Resend API key |
-| `TF_VAR_PRODUCTION_URL` | e.g. `https://meetme.vercel.app` |
-| `TF_VAR_ADMIN_EMAIL` | Admin email |
+Add **all** of the following — not only the Vercel token. Values can come from your local `.env` / Neon / Vercel.
 
-Optional: `TF_VAR_VERCEL_TEAM_ID`, `TF_VAR_SENTRY_DSN`, `TF_VAR_PRODUCTION_DOMAIN`
+Use **either**:
+
+- **Repository secrets** — Settings → Secrets and variables → Actions → *Repository secrets*, **or**
+- **Environment secrets** — Settings → Environments → **Production** → *Environment secrets*  
+  (the workflow sets `environment: Production`)
+
+| Secret | Maps to | Example |
+|--------|---------|---------|
+| `VERCEL_API_TOKEN` or `TF_VAR_VERCEL_API_TOKEN` | Vercel API token | `vercel_...` from [vercel.com/account/tokens](https://vercel.com/account/tokens) |
+| `TF_VAR_DATABASE_URL` | `DATABASE_URL` | Neon connection string |
+| `TF_VAR_ADMIN_SECRET` | `ADMIN_SECRET` | strong password |
+| `TF_VAR_ADMIN_EMAIL` | `ADMIN_EMAIL` | `you@example.com` |
+| `TF_VAR_CRON_SECRET` | `CRON_SECRET` | random string |
+| `TF_VAR_TURNSTILE_SITE_KEY` | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile site key |
+| `TF_VAR_TURNSTILE_SECRET_KEY` | `TURNSTILE_SECRET_KEY` | Turnstile secret |
+| `TF_VAR_PRODUCTION_URL` | `NEXT_PUBLIC_APP_URL` (prod) | `https://meetme.vercel.app` |
+
+Optional: `TF_VAR_VERCEL_TEAM_ID`, `TF_VAR_RESEND_API_KEY`, `TF_VAR_SENTRY_DSN`, `TF_VAR_PRODUCTION_DOMAIN`
 
 ## Neon database
 

@@ -19,6 +19,8 @@ jobs:
   terraform:
     name: Terraform
     runs-on: ubuntu-latest
+    # Required when secrets live under Settings → Environments → Production
+    environment: Production
     defaults:
       run:
         working-directory: infra/terraform
@@ -70,8 +72,10 @@ jobs:
             echo "::error::Missing GitHub Actions secrets required for Terraform:"
             printf '  - %s\n' "${missing[@]}"
             echo ""
-            echo "Add them under: Repository → Settings → Secrets and variables → Actions"
-            echo "Vercel token: https://vercel.com/account/tokens"
+            echo "Add them as either:"
+            echo "  • Repository secrets: Settings → Secrets and variables → Actions → Repository secrets"
+            echo "  • Environment secrets: Settings → Environments → Production → Environment secrets"
+            echo "    (workflow uses environment: Production)"
             exit 1
           fi
 
