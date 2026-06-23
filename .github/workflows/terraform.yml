@@ -23,6 +23,20 @@ jobs:
       run:
         working-directory: infra/terraform
 
+    env:
+      TF_VAR_vercel_api_token: ${{ secrets.TF_VAR_VERCEL_API_TOKEN || secrets.VERCEL_API_TOKEN }}
+      TF_VAR_vercel_team_id: ${{ secrets.TF_VAR_VERCEL_TEAM_ID }}
+      TF_VAR_database_url: ${{ secrets.TF_VAR_DATABASE_URL }}
+      TF_VAR_admin_secret: ${{ secrets.TF_VAR_ADMIN_SECRET }}
+      TF_VAR_admin_email: ${{ secrets.TF_VAR_ADMIN_EMAIL }}
+      TF_VAR_cron_secret: ${{ secrets.TF_VAR_CRON_SECRET }}
+      TF_VAR_turnstile_site_key: ${{ secrets.TF_VAR_TURNSTILE_SITE_KEY }}
+      TF_VAR_turnstile_secret_key: ${{ secrets.TF_VAR_TURNSTILE_SECRET_KEY }}
+      TF_VAR_resend_api_key: ${{ secrets.TF_VAR_RESEND_API_KEY }}
+      TF_VAR_production_url: ${{ secrets.TF_VAR_PRODUCTION_URL }}
+      TF_VAR_sentry_dsn: ${{ secrets.TF_VAR_SENTRY_DSN }}
+      TF_VAR_production_domain: ${{ secrets.TF_VAR_PRODUCTION_DOMAIN }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -39,22 +53,31 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: Check required secrets
+        if: github.event_name == 'pull_request' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
+        run: |
+          missing=()
+          [ -z "$TF_VAR_vercel_api_token" ] && missing+=("VERCEL_API_TOKEN or TF_VAR_VERCEL_API_TOKEN")
+          [ -z "$TF_VAR_database_url" ] && missing+=("TF_VAR_DATABASE_URL")
+          [ -z "$TF_VAR_admin_secret" ] && missing+=("TF_VAR_ADMIN_SECRET")
+          [ -z "$TF_VAR_admin_email" ] && missing+=("TF_VAR_ADMIN_EMAIL")
+          [ -z "$TF_VAR_cron_secret" ] && missing+=("TF_VAR_CRON_SECRET")
+          [ -z "$TF_VAR_turnstile_site_key" ] && missing+=("TF_VAR_TURNSTILE_SITE_KEY")
+          [ -z "$TF_VAR_turnstile_secret_key" ] && missing+=("TF_VAR_TURNSTILE_SECRET_KEY")
+          [ -z "$TF_VAR_production_url" ] && missing+=("TF_VAR_PRODUCTION_URL")
+
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Missing GitHub Actions secrets required for Terraform:"
+            printf '  - %s\n' "${missing[@]}"
+            echo ""
+            echo "Add them under: Repository → Settings → Secrets and variables → Actions"
+            echo "Vercel token: https://vercel.com/account/tokens"
+            exit 1
+          fi
+
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
         run: terraform plan -no-color -input=false 2>&1 | tee plan.txt
-        env:
-          TF_VAR_vercel_api_token: ${{ secrets.VERCEL_API_TOKEN }}
-          TF_VAR_vercel_team_id: ${{ secrets.TF_VAR_VERCEL_TEAM_ID }}
-          TF_VAR_database_url: ${{ secrets.TF_VAR_DATABASE_URL }}
-          TF_VAR_admin_secret: ${{ secrets.TF_VAR_ADMIN_SECRET }}
-          TF_VAR_admin_email: ${{ secrets.TF_VAR_ADMIN_EMAIL }}
-          TF_VAR_cron_secret: ${{ secrets.TF_VAR_CRON_SECRET }}
-          TF_VAR_turnstile_site_key: ${{ secrets.TF_VAR_TURNSTILE_SITE_KEY }}
-          TF_VAR_turnstile_secret_key: ${{ secrets.TF_VAR_TURNSTILE_SECRET_KEY }}
-          TF_VAR_resend_api_key: ${{ secrets.TF_VAR_RESEND_API_KEY }}
-          TF_VAR_production_url: ${{ secrets.TF_VAR_PRODUCTION_URL }}
-          TF_VAR_sentry_dsn: ${{ secrets.TF_VAR_SENTRY_DSN }}
-          TF_VAR_production_domain: ${{ secrets.TF_VAR_PRODUCTION_DOMAIN }}
 
       - name: Comment Plan on PR
         if: github.event_name == 'pull_request' && success()
@@ -74,16 +97,3 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
-        env:
-          TF_VAR_vercel_api_token: ${{ secrets.VERCEL_API_TOKEN }}
-          TF_VAR_vercel_team_id: ${{ secrets.TF_VAR_VERCEL_TEAM_ID }}
-          TF_VAR_database_url: ${{ secrets.TF_VAR_DATABASE_URL }}
-          TF_VAR_admin_secret: ${{ secrets.TF_VAR_ADMIN_SECRET }}
-          TF_VAR_admin_email: ${{ secrets.TF_VAR_ADMIN_EMAIL }}
-          TF_VAR_cron_secret: ${{ secrets.TF_VAR_CRON_SECRET }}
-          TF_VAR_turnstile_site_key: ${{ secrets.TF_VAR_TURNSTILE_SITE_KEY }}
-          TF_VAR_turnstile_secret_key: ${{ secrets.TF_VAR_TURNSTILE_SECRET_KEY }}
-          TF_VAR_resend_api_key: ${{ secrets.TF_VAR_RESEND_API_KEY }}
-          TF_VAR_production_url: ${{ secrets.TF_VAR_PRODUCTION_URL }}
-          TF_VAR_sentry_dsn: ${{ secrets.TF_VAR_SENTRY_DSN }}
-          TF_VAR_production_domain: ${{ secrets.TF_VAR_PRODUCTION_DOMAIN }}

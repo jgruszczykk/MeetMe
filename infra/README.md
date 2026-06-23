@@ -75,7 +75,7 @@ GitHub Actions workflow `.github/workflows/terraform.yml` runs `terraform plan` 
 
 | Secret | Description |
 |--------|-------------|
-| `VERCEL_API_TOKEN` | Vercel API token |
+| `VERCEL_API_TOKEN` or `TF_VAR_VERCEL_API_TOKEN` | Vercel API token ([create here](https://vercel.com/account/tokens)) |
 | `TF_VAR_DATABASE_URL` | Neon connection string |
 | `TF_VAR_ADMIN_SECRET` | Admin password |
 | `TF_VAR_CRON_SECRET` | Cron bearer token |
